@@ -12,10 +12,9 @@ include 'koneksi.php';
 // Tambah data obat
 if (isset($_POST['tambah'])) {
     $nama_obat = $_POST['nama_obat'];
-    $jenis_obat = $_POST['jenis_obat'];
-    $stok = $_POST['stok'];
+    $kemasan_obat = $_POST['kemasan_obat'];  // Changed from jenis_obat
     $harga = $_POST['harga'];
-    $query = "INSERT INTO obat (nama_obat, jenis_obat, stok, harga) VALUES ('$nama_obat', '$jenis_obat', '$stok', '$harga')";
+    $query = "INSERT INTO obat (nama_obat, kemasan_obat, harga) VALUES ('$nama_obat', '$kemasan_obat', '$harga')";  // Changed from jenis_obat
     mysqli_query($koneksi, $query);
     header("Location: index.php?page=obat.php");
     exit;
@@ -33,10 +32,9 @@ if (isset($_GET['edit'])) {
 if (isset($_POST['update'])) {
     $id = $_POST['id'];
     $nama_obat = $_POST['nama_obat'];
-    $jenis_obat = $_POST['jenis_obat'];
-    $stok = $_POST['stok'];
+    $kemasan_obat = $_POST['kemasan_obat'];  // Changed from jenis_obat
     $harga = $_POST['harga'];
-    $query = "UPDATE obat SET nama_obat='$nama_obat', jenis_obat='$jenis_obat', stok='$stok', harga='$harga' WHERE id='$id'";
+    $query = "UPDATE obat SET nama_obat='$nama_obat', kemasan_obat='$kemasan_obat', harga='$harga' WHERE id='$id'";  // Changed from jenis_obat
     mysqli_query($koneksi, $query);
     header("Location: index.php?page=obat.php");
     exit;
@@ -100,12 +98,8 @@ $hasil = mysqli_query($koneksi, $query);
                 <input type="text" name="nama_obat" class="form-control" value="<?= isset($obat) ? $obat['nama_obat'] : ''; ?>" required>
             </div>
             <div class="mb-3">
-                <label>Jenis Obat</label>
-                <input type="text" name="jenis_obat" class="form-control" value="<?= isset($obat) ? $obat['jenis_obat'] : ''; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label>Stok</label>
-                <input type="number" name="stok" class="form-control" value="<?= isset($obat) ? $obat['stok'] : ''; ?>" required>
+                <label>Kemasan Obat</label> <!-- Changed from Jenis Obat -->
+                <input type="text" name="kemasan_obat" class="form-control" value="<?= isset($obat) ? $obat['kemasan_obat'] : ''; ?>" required> <!-- Changed from jenis_obat -->
             </div>
             <div class="mb-3">
                 <label>Harga</label>
@@ -126,8 +120,7 @@ $hasil = mysqli_query($koneksi, $query);
                 <tr>
                     <th>ID</th>
                     <th>Nama Obat</th>
-                    <th>Jenis Obat</th>
-                    <th>Stok</th>
+                    <th>Kemasan Obat</th> <!-- Changed from Jenis Obat -->
                     <th>Harga</th>
                     <th>Aksi</th>
                 </tr>
@@ -137,8 +130,7 @@ $hasil = mysqli_query($koneksi, $query);
                     <tr>
                         <td><?= $row['id']; ?></td>
                         <td><?= $row['nama_obat']; ?></td>
-                        <td><?= $row['jenis_obat']; ?></td>
-                        <td><?= $row['stok']; ?></td>
+                        <td><?= $row['kemasan_obat']; ?></td> <!-- Changed from jenis_obat -->
                         <td>Rp <?= number_format($row['harga'], 0, ',', '.'); ?></td>
                         <td>
                             <a href="index.php?page=obat.php&edit=<?= $row['id']; ?>" class="btn btn-warning btn-sm">Edit</a>

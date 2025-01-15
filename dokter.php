@@ -1,38 +1,47 @@
-<?php 
+<?php
 if (session_status() == PHP_SESSION_NONE) { 
     session_start(); 
-} 
+}
 if (!isset($_SESSION['username'])) { 
     header("Location: index.php?page=LoginUser.php"); 
     exit; 
-} 
+}
 
-include 'koneksi.php'; 
+include 'koneksi.php';
 
-// Tambah data dokter 
-if (isset($_POST['tambah'])) { 
-    $nama = $_POST['nama']; 
-    $spesialis = $_POST['spesialis']; 
-    $telepon = $_POST['telepon']; 
-    $kategori_poli = $_POST['kategori_poli']; 
-    $query = "INSERT INTO dokter (nama, spesialis, telepon, kategori_poli) VALUES ('$nama', '$spesialis', '$telepon', '$kategori_poli')"; 
-    mysqli_query($koneksi, $query); 
-    // Mendapatkan id dokter terakhir yang ditambahkan 
-    $id_dokter = mysqli_insert_id($koneksi); 
+// Tambah data dokter
+if (isset($_POST['tambah'])) {
+    $nama = $_POST['nama'];
+    $spesialis = $_POST['spesialis'];
+    $telepon = $_POST['telepon'];
+    $kategori_poli = $_POST['kategori_poli'];
     
-    // Menambahkan jadwal jika ada input jadwal 
-    if (isset($_POST['hari']) && isset($_POST['jam_mulai']) && isset($_POST['jam_selesai'])) { 
-        $hari = $_POST['hari']; 
-        $jam_mulai = $_POST['jam_mulai']; 
-        $jam_selesai = $_POST['jam_selesai']; 
-        $query_jadwal = "INSERT INTO jadwal (id_dokter, hari, jam_mulai, jam_selesai) 
-                        VALUES ('$id_dokter', '$hari', '$jam_mulai', '$jam_selesai')"; 
-        mysqli_query($koneksi, $query_jadwal); 
-    } 
+    // Buat username dari nama dokter
+    $username = strtolower(str_replace(' ', '', $nama)); // Mengubah nama menjadi lowercase dan menghapus spasi
+    
+    // Password tidak relevan, namun tetap disimpan jika diperlukan (misalnya, hashing dari username)
+    $password = password_hash($username, PASSWORD_DEFAULT);
 
-    header("Location: index.php?page=dokter.php"); 
-    exit; 
-} 
+    // Query untuk menambah dokter
+    $query = "INSERT INTO dokter (nama, spesialis, telepon, kategori_poli, username, password) VALUES ('$nama', '$spesialis', '$telepon', '$kategori_poli', '$username', '$password')";
+    mysqli_query($koneksi, $query);
+
+    // Mendapatkan id dokter terakhir yang ditambahkan
+    $id_dokter = mysqli_insert_id($koneksi);
+    
+    // Menambahkan jadwal jika ada input jadwal
+    if (isset($_POST['hari']) && isset($_POST['jam_mulai']) && isset($_POST['jam_selesai'])) {
+        $hari = $_POST['hari'];
+        $jam_mulai = $_POST['jam_mulai'];
+        $jam_selesai = $_POST['jam_selesai'];
+        $query_jadwal = "INSERT INTO jadwal (id_dokter, hari, jam_mulai, jam_selesai) 
+                        VALUES ('$id_dokter', '$hari', '$jam_mulai', '$jam_selesai')";
+        mysqli_query($koneksi, $query_jadwal);
+    }
+
+    header("Location: index.php?page=dokter.php");
+    exit;
+}
 
 // Ambil data dokter untuk di-edit 
 if (isset($_GET['edit'])) { 
@@ -67,18 +76,21 @@ if (isset($_POST['update'])) {
 } 
 
 // Hapus data dokter 
-if (isset($_GET['hapus'])) { 
-    $id = $_GET['hapus']; 
-    $query = "DELETE FROM dokter WHERE id='$id'"; 
-    mysqli_query($koneksi, $query); 
+if (isset($_GET['hapus'])) {
+    $id = $_GET['hapus'];
     
-    // Hapus jadwal terkait 
-    $query_jadwal = "DELETE FROM jadwal WHERE id_dokter='$id'"; 
-    mysqli_query($koneksi, $query_jadwal); 
+    // Hapus jadwal terkait terlebih dahulu
+    $query_jadwal = "DELETE FROM jadwal WHERE id_dokter='$id'";
+    mysqli_query($koneksi, $query_jadwal);
+    
+    // Setelah jadwal terhapus, hapus dokter
+    $query = "DELETE FROM dokter WHERE id='$id'";
+    mysqli_query($koneksi, $query);
+    
+    header("Location: index.php?page=dokter.php");
+    exit;
+}
 
-    header("Location: index.php?page=dokter.php"); 
-    exit; 
-} 
 
 // Ambil data dokter beserta jadwal 
 $query_dokter = "SELECT d.*, j.hari, j.jam_mulai, j.jam_selesai FROM dokter d LEFT JOIN jadwal j ON d.id = j.id_dokter"; 

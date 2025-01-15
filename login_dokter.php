@@ -3,8 +3,8 @@ include 'koneksi.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = mysqli_real_escape_string($koneksi, $_POST['username']);  // Menambahkan proteksi SQL Injection
-    $password = $_POST['password'];
+    $username = mysqli_real_escape_string($koneksi, $_POST['username']);  // Sanitasi input
+    $password = $_POST['password']; // Password bebas, tidak digunakan untuk verifikasi
 
     // Query untuk mencari dokter berdasarkan username
     $query = "SELECT * FROM dokter WHERE username='$username'";
@@ -12,18 +12,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Verifikasi jika dokter ditemukan
     if ($dokter = mysqli_fetch_assoc($result)) {
-        // Verifikasi password
-        if (password_verify($password, $dokter['password'])) {
-            // Jika login berhasil, simpan session
-            $_SESSION['username'] = $dokter['username'];
-            $_SESSION['role'] = 'dokter';  // Atau bisa menyimpan role yang sesuai
+        // Username cocok, password tidak diverifikasi
+        $_SESSION['username'] = $dokter['username'];
+        $_SESSION['role'] = 'dokter';  // Menyimpan role sebagai dokter
 
-            // Redirect ke halaman dashboard dokter
-            header("Location: dashboard_dokter.php");
-            exit;
-        } else {
-            $error = "Password salah!";
-        }
+        // Redirect ke halaman dashboard dokter
+        header("Location: dashboard_dokter.php");
+        exit;
     } else {
         $error = "Dokter dengan username tersebut tidak ditemukan!";
     }
@@ -53,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="text" class="form-control" name="username" id="username" required>
         </div>
         <div class="form-group mt-3">
-            <label for="password">Password</label>
+            <label for="password">Password (bebas)</label>
             <input type="password" class="form-control" name="password" id="password" required>
         </div>
         <button type="submit" class="btn btn-primary mt-3">Login</button>

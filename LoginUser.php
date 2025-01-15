@@ -10,8 +10,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $role = $_POST['role'];  // Ambil role dari form login
 
     // Cek berdasarkan role
-    if ($role == 'admin' || $role == 'dokter') {
-        // Login untuk admin dan dokter menggunakan username dan password biasa
+    if ($role == 'admin') {
+        // Login untuk admin menggunakan username dan password biasa
         $query = "SELECT * FROM user WHERE username='$username' AND role='$role'"; 
         $result = mysqli_query($koneksi, $query); 
         $user = mysqli_fetch_assoc($result);
@@ -21,15 +21,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['username'] = $username; 
             $_SESSION['role'] = $role; 
 
-            // Redirect berdasarkan role
-            if ($role == 'admin') { 
-                header("Location: index.php"); 
-            } elseif ($role == 'dokter') { 
-                header("Location: dokter_dashboard.php");  // Redirect ke halaman dokter
-            }
+            // Redirect ke halaman admin
+            header("Location: index.php"); 
             exit; 
         } else { 
             $error = "Username atau Password salah!"; 
+        }
+    } elseif ($role == 'dokter') {
+        // Login untuk dokter berdasarkan username (nama dokter), password bebas
+        $query = "SELECT * FROM dokter WHERE nama='$username'"; 
+        $result = mysqli_query($koneksi, $query); 
+        $user = mysqli_fetch_assoc($result);
+
+        if ($user) {
+            // Login berhasil tanpa memeriksa password
+            $_SESSION['username'] = $username; 
+            $_SESSION['role'] = $role; 
+            
+            // Redirect ke halaman dokter
+            header("Location: dokter_dashboard.php");
+            exit;
+        } else { 
+            $error = "Nama dokter tidak ditemukan!";
         }
     } elseif ($role == 'pasien') {
         // Login untuk pasien menggunakan nama sebagai username dan 3 digit terakhir RM sebagai password
